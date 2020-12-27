@@ -11,6 +11,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "bittorrent-tracker": "^9.15.0"
+    "bittorrent-tracker": "^9.15.0",
+    "crypto-js": "^4.0.0",
+    "simple-sha1": "^3.0.1"
   }
 }

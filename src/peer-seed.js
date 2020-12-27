@@ -1,6 +1,15 @@
+const sha256 = require('crypto-js/sha256')
+const sha1 = require('simple-sha1')
 var Server = require('bittorrent-tracker').Server
+
 const port = 4400;
 const hostname = '0.0.0.0'
+
+const topic = Buffer.from(sha256('peernet-v0.1.0').toString())
+let _infoHash = sha1.sync(topic.slice(0, 20)).toLowerCase()
+// _infoHash = _infoHash.toLowerCase()
+const _infoHashBuffer = Buffer.from(_infoHash, 'hex')
+const _infoHashBinary = _infoHashBuffer.toString('binary')
 
 var server = new Server({
   udp: false, // enable udp server? [default=true]
@@ -8,24 +17,11 @@ var server = new Server({
   ws: true, // enable websocket server? [default=true]
   stats: true, // enable web-based statistics? [default=true]
   filter: function (infoHash, params, cb) {
-    // Blacklist/whitelist function for allowing/disallowing torrents. If this option is
-    // omitted, all torrents are allowed. It is possible to interface with a database or
-    // external system before deciding to allow/deny, because this function is async.
-
-    // It is possible to block by peer id (whitelisting torrent clients) or by secret
-    // key (private trackers). Full access to the original HTTP/UDP request parameters
-    // are available in `params`.
-
-    // This example only allows one torrent.
-    // if (infoHash === 'aaa67059ed6bd08362da625b3ae77f6f4a075aaa') {
-    //   // If the callback is passed `null`, the torrent will be allowed.
-    //   cb(null)
-    // } else {
-    //   // If the callback is passed an `Error` object, the torrent will be disallowed
-    //   // and the error's `message` property will be given as the reason.
-    //   cb(new Error('disallowed torrent'))
-    // }
-    cb(null)
+    if (infoHash === _infoHash) {
+      cb(null)
+    } else {
+      cb(new Error('disallowed'))
+    }
   }
 })
 
